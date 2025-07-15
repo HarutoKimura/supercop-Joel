@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# create cryptopt-asms
+sfile="$(dirname "${0}")/asm.S"
+test -e "${sfile}" && rm "${sfile}"
+count=${1:-1}
+
+resdir=${RESULTS_PATH:-~/cryptopt/results}
+
+# Direct paths to fiat-rust assembly files
+mul_asm="${resdir}/fiat-rust/fiat_rust_curve25519_carry_mul/seed0001746533729338_ratio12461.asm"
+square_asm="${resdir}/fiat-rust/fiat_rust_curve25519_carry_square/seed4209879438348476_ratio12581.asm"
+
+# Convert and append mul - rename rust_fiat functions to fiat
+if [ -f "${mul_asm}" ]; then
+  ~/cryptopt/modules/scripts/convert/intel2att.sh --crypto-namespace "${mul_asm}" | \
+    sed 's/rust_fiat_curve25519_carry_mul_CryptOpt/fiat_curve25519_carry_mul/g' >>"${sfile}"
+else
+  echo "Could not find mul assembly: ${mul_asm}"
+  exit 1
+fi
+
+# Convert and append square - rename rust_fiat functions to fiat
+if [ -f "${square_asm}" ]; then
+  ~/cryptopt/modules/scripts/convert/intel2att.sh --crypto-namespace "${square_asm}" | \
+    sed 's/rust_fiat_curve25519_carry_square_CryptOpt/fiat_curve25519_carry_square/g' >>"${sfile}"
+else
+  echo "Could not find square assembly: ${square_asm}"
+  exit 1
+fi
