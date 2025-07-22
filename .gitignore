@@ -2,3 +2,7 @@ bench/
 *.o
 *.a
 *.S
+*.out
+*.tex
+*.png
+*.py
